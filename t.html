@@ -38,13 +38,23 @@
       ctx.arc(cx, cy, arcRadius, startArc, endArc, false);
       ctx.stroke();
 
+      // Dynamic Color for the Active Arc
+      var activeColor = '#00E5FF'; // Cyan for 0-30 deg
+      if (angleVal >= 80) {
+        activeColor = '#FF0055'; // Red/Magenta for vertical (80-90)
+      } else if (angleVal >= 60) {
+        activeColor = '#FF5500'; // Orange for steep (60-80)
+      } else if (angleVal >= 30) {
+        activeColor = '#FFDD00'; // Yellow for stairs/moderate (30-60)
+      }
+
       // Draw active arc based on angle (0 to 90 degrees)
       var progress = angleVal / 90.0;
       var currentEndArc = startArc + progress * (endArc - startArc);
 
       if (progress > 0) {
         ctx.lineWidth = 10;
-        ctx.strokeStyle = '#00E5FF';
+        ctx.strokeStyle = activeColor;
         ctx.beginPath();
         ctx.arc(cx, cy, arcRadius, startArc, currentEndArc, false);
         ctx.stroke();
@@ -69,35 +79,35 @@
         <!-- Central Metric: Ascent Meters -->
         <div class="sp-vertical-center p-hc" style="top:calc(45% - 50%e); position:absolute;">
             <span class="f-ico" style="color:#FFFFFF; margin-right:6px;">&#xF112;</span>
-            <span class="f-num" style="font-size:44px; color:#FFFFFF;">
+            <span class="f-num" style="font-size:38px; color:#FFFFFF;">
                 <eval input="/Zapp/{zapp_index}/Output/climbAttemptAscent" outputFormat="Count_Threedigits" default="--" />
             </span>
         </div>
-        <div class="f-s cm-mid p-hc" style="top:calc(57% - 50%e); font-size:18px; position:absolute; color:#888888;">
+        <div class="f-s cm-mid p-hc" style="top:calc(56% - 50%e); font-size:16px; position:absolute; color:#888888;">
             Meters
         </div>
 
         <!-- Middle Row -->
         
         <!-- Left: Number of Ascents -->
-        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(22% - 50%e); position:absolute;">
+        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(20% - 50%e); position:absolute;">
             <span class="f-ico" style="color:#FF5500;">&#xF265;</span>
-            <span class="f-num" style="font-size:28px; margin-left:4px; color:#FFFFFF;">
+            <span class="f-num" style="font-size:34px; margin-left:2px; color:#FFFFFF;">
                 <eval input="/Zapp/{zapp_index}/Output/climbAttempts" outputFormat="Count_Threedigits" default="--" />
             </span>
         </div>
 
         <!-- Center: Ascent Duration -->
         <div class="sp-vertical-center p-hc" style="top:calc(72% - 50%e); position:absolute;">
-            <span class="f-ico" style="color:#CCCCCC; margin-right:4px;">&#xF114;</span>
-            <span class="f-num" style="font-size:22px; color:#CCCCCC;">
+            <span class="f-ico" style="color:#CCCCCC; margin-right:2px;">&#xF114;</span>
+            <span class="f-num" style="font-size:28px; color:#CCCCCC;">
                 <eval input="/Zapp/{zapp_index}/Output/climbDurationAscent" outputFormat="Duration_FourdigitsFixed" default="--:--" />
             </span>
         </div>
 
         <!-- Right: Angle Ascent -->
-        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(78% - 50%e); position:absolute;">
-            <span class="f-num" style="font-size:28px; color:#00E5FF; margin-right:4px;">
+        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(80% - 50%e); position:absolute;">
+            <span class="f-num" style="font-size:34px; color:#00E5FF; margin-right:2px;">
                 <eval input="/Zapp/{zapp_index}/Output/climbAngleAscent" outputFormat="Count_Threedigits" default="--" onValueChanged="g.currentAngle = Number(targetData) || 0; control('#climbGauge', 'REFRESH');" />
             </span>
             <span class="f-ico" style="color:#00E5FF;">&#xF262;</span>

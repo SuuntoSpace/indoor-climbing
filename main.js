@@ -30,29 +30,37 @@
 // .toFixed(0) Without decimals
 
 var Ascending, Descending, climbAttemptDescent, climbTotalAscent, climbTotalDescent, climbDurationDescent, climbDistanceAttempAscent,
-    climbDistanceStartAttempAscent, climbRightTriangle, climbTotalDurationAscent, climbTotalDurationDescent;
+    climbDistanceStartAttempAscent, climbRightTriangle, climbTotalDurationAscent, climbTotalDurationDescent, attemptDistanceAnchored;
 
 function evaluate(input, output) {  
   output.climbAttemptAscent = input.AscentMeters.toFixed(0) - climbTotalAscent;
   climbAttemptDescent = input.DescentMeters.toFixed(0) - climbTotalDescent;
   if ((output.climbAttemptAscent > 0) && (climbAttemptDescent == 0)) {
-    if (climbDistanceStartAttempAscent == 0) {
+      if (!attemptDistanceAnchored) {
      // Save the distance when start the Ascent
      climbDistanceStartAttempAscent = input.Distance;
-    }else{
+     attemptDistanceAnchored = true;
+    } else {
      // Save the Distance in meters when ascensing because later generate the angle of each Attempt
      climbDistanceAttempAscent = input.Distance - climbDistanceStartAttempAscent;
-     if (climbDistanceAttempAscent > output.climbAttemptAscent) {
-      // Pythagoras theorem ( Calc the Right Triangle )
-      climbRightTriangle = Math.sqrt(Math.pow(climbDistanceAttempAscent, 2) - Math.pow(output.climbAttemptAscent, 2));
-      // Calculate the angle of Cos
-      output.climbAngleAscent = Math.acos(climbRightTriangle/climbDistanceAttempAscent)*(180/Math.PI);;
-     } else if (climbDistanceAttempAscent == output.climbAttemptAscent){
-      output.climbAngleAscent = 90;
+     
+     var H = output.climbAttemptAscent;
+     var D = climbDistanceAttempAscent;
+     
+     if (D > 0) {
+       var ratio = H / D;
+       if (ratio > 1.0) ratio = 1.0;
+       if (ratio < -1.0) ratio = -1.0;
+       output.climbAngleAscent = Math.asin(ratio) * (180 / Math.PI);
      } else {
-      output.climbAngleAscent = 0;
-    }
-  } 
+       // If no distance has been registered but height increased, it's effectively 90 degrees
+       if (H > 0) {
+         output.climbAngleAscent = 90;
+       } else {
+         output.climbAngleAscent = 0;
+       }
+     }
+    } 
     // Condition that you can make actions in Ascent period
     output.climbDurationAscent = input.DurationAscent - climbTotalDurationAscent;
     // Use this var to save the data on SA for each lap 
@@ -95,6 +103,7 @@ function onExerciseStart(input, output) {
   Descending = 'false';
   climbTotalDurationDescent = 0;
   climbTotalDurationAscent = 0;
+  attemptDistanceAnchored = false;
 }
 
 function onLap(input, output) { 
@@ -119,6 +128,7 @@ function onLap(input, output) {
   output.climbDurationAscentDescent = 0;
   output.climbDurationAscent = 0;
   climbDurationDescent = 0;
+  attemptDistanceAnchored = false;
 }
  
  function getUserInterface(input, output) {
