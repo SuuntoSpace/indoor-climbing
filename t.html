@@ -1,51 +1,114 @@
-<uiView>
-   <div id="suuntoplus">
-      <!-- Topmost: title field -->
-      <div class="cm-fg sp-t-l" style="width:100%;height:30%;text-align:center;">
-         <div style="left:calc(50% - 50%e);width:60%;bottom:-4%;">INDOOR CLIMBING</div>
-      </div>
-      <!-- vertical separator -->
-      <div class="cm-fg p-hc" style="top:32%;width:2px;height:43%;opacity:0.6"></div>
-      <!-- Field just under the title, left side -->
-      <!-- Ascent -->
-      <div class="sp-vertical-center" style="top:31%;left:calc(26% - 50%e);">
-         <span class="f-ico cm-mid" style="padding-right:5px">&#xF112;</span>
-         <span class="f-num sp-d-m">
-            <!-- Eval element is replaced by the value from the input resource from the native duration resource. -->
-            <eval input="/Zapp/{zapp_index}/Output/climbAttemptAscent" outputFormat="Count_Threedigits" default="--" />
-         </span>
-      </div>
-      <!-- Field just under the title, right side -->
-      <!-- Time Duration of Ascent -->
-      <div class="sp-vertical-center" style="top:31%;left:calc(76% - 50%e);">
-         <span class="f-num sp-d-m">
-            <!-- Eval element is replaced by the value from the input resource from the native duration resource. -->
-            <eval input="/Zapp/{zapp_index}/Output/climbDurationAscent" outputFormat="Duration_FourdigitsFixed" default="--" />
-         </span>
-         <span class="f-ico cm-mid" style="padding-right:5px">&#xF114;</span>
-      </div>
-      <!-- middle left side -->
-      <!-- Number of Ascents -->
-      <div class="sp-vertical-center" style="top:52%;left:calc(25% - 50%e);">
-         <span class="f-ico cm-mid" style="padding-right:5px">&#xF265;</span>
-         <span class="f-num sp-d-m">
-            <!-- Eval element is replaced by the value from the input resource from the native duration resource. -->
-            <eval input="/Zapp/{zapp_index}/Output/climbAttempts" outputFormat="Count_Threedigits" default="--" />
-         </span>
-      </div>
-      <!-- middle right side -->
-      <!-- Angle Ascent -->
-      <div class="sp-vertical-center" style="top:52%;left:calc(74% - 50%e);">
-         <span class="f-num sp-d-m">
-            <!-- Eval element is replaced by the value from the input resource from the native duration resource. -->
-            <eval input="/Zapp/{zapp_index}/Output/climbAngleAscent" outputFormat="Count_Threedigits" default="--" />
-         </span>
-         <span class="f-ico cm-mid" style="padding-right:5px">&#xF262;</span>
-      </div>
-      <!-- Bottom text area -->
-      <!--  Workout Duration -->
-      <div class="sp-d-m f-d-m f-num p-hc" style="top:calc(84% - 50%e)">
-         <eval input="/Activity/Activity/-1/Duration/Current" outputFormat="Duration_Training" default="--" />
-      </div>
-   </div>
+<uiView 
+  onLoad="
+    var g = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : Function('return this')());
+    g.g = g;
+    g.currentAngle = 0;
+
+    g.drawClimbingUI = function(ctx) {
+      var cx = ctx.width / 2;
+      var cy = ctx.width / 2;
+
+      var angleVal = Number(g.currentAngle) || 0;
+      if (angleVal < 0) angleVal = 0;
+      if (angleVal > 90) angleVal = 90;
+
+      // 1. Draw top curved orange banner (Slightly larger to fit two lines)
+      var r = ctx.width / 2 - 10; 
+      var dy = 0.26 * ctx.width - cy; 
+      if (r > Math.abs(dy)) {
+        var end = Math.asin(dy / r);
+        var start = -Math.PI - end;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, start, end, false);
+        ctx.closePath();
+        ctx.fillStyle = '#FF5500';
+        ctx.fill();
+      }
+
+      ctx.lineCap = 'round';
+      var arcRadius = (ctx.width - 12) / 2 - 6;
+
+      // Draw background arc for Angle
+      var startArc = 3 * Math.PI / 4;
+      var endArc = 9 * Math.PI / 4;
+      
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = '#222222';
+      ctx.beginPath();
+      ctx.arc(cx, cy, arcRadius, startArc, endArc, false);
+      ctx.stroke();
+
+      // Draw active arc based on angle (0 to 90 degrees)
+      var progress = angleVal / 90.0;
+      var currentEndArc = startArc + progress * (endArc - startArc);
+
+      if (progress > 0) {
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = '#00E5FF';
+        ctx.beginPath();
+        ctx.arc(cx, cy, arcRadius, startArc, currentEndArc, false);
+        ctx.stroke();
+      }
+    };
+  "
+>
+    <div style="background-color:#111111; width:100%; height:100%; position:absolute; top:0; left:0;">
+        <!-- Background Canvas -->
+        <object type="canvas" id="climbGauge" style="position:absolute; top:0; left:0; width:100%; height:100%;" build="ctx => g.drawClimbingUI(ctx);" />
+
+        <!-- Title INDOOR CLIMBING in two lines -->
+        <div class="sp-t-m p-hc" style="top:calc(16% - 50%e); color:#000000; font-weight:bold; position:absolute; line-height:1; text-align:center;">
+            INDOOR<br>CLIMBING
+        </div>
+
+        <!-- Mode Label -->
+        <div class="f-s p-hc" style="top:calc(29% - 50%e); font-size:12px; font-weight:bold; color:#FF5500; position:absolute;">
+            CURRENT ASCENT
+        </div>
+
+        <!-- Central Metric: Ascent Meters -->
+        <div class="sp-vertical-center p-hc" style="top:calc(45% - 50%e); position:absolute;">
+            <span class="f-ico" style="color:#FFFFFF; margin-right:6px;">&#xF112;</span>
+            <span class="f-num" style="font-size:44px; color:#FFFFFF;">
+                <eval input="/Zapp/{zapp_index}/Output/climbAttemptAscent" outputFormat="Count_Threedigits" default="--" />
+            </span>
+        </div>
+        <div class="f-s cm-mid p-hc" style="top:calc(57% - 50%e); font-size:18px; position:absolute; color:#888888;">
+            Meters
+        </div>
+
+        <!-- Middle Row -->
+        
+        <!-- Left: Number of Ascents -->
+        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(22% - 50%e); position:absolute;">
+            <span class="f-ico" style="color:#FF5500;">&#xF265;</span>
+            <span class="f-num" style="font-size:28px; margin-left:4px; color:#FFFFFF;">
+                <eval input="/Zapp/{zapp_index}/Output/climbAttempts" outputFormat="Count_Threedigits" default="--" />
+            </span>
+        </div>
+
+        <!-- Center: Ascent Duration -->
+        <div class="sp-vertical-center p-hc" style="top:calc(72% - 50%e); position:absolute;">
+            <span class="f-ico" style="color:#CCCCCC; margin-right:4px;">&#xF114;</span>
+            <span class="f-num" style="font-size:22px; color:#CCCCCC;">
+                <eval input="/Zapp/{zapp_index}/Output/climbDurationAscent" outputFormat="Duration_FourdigitsFixed" default="--:--" />
+            </span>
+        </div>
+
+        <!-- Right: Angle Ascent -->
+        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(78% - 50%e); position:absolute;">
+            <span class="f-num" style="font-size:28px; color:#00E5FF; margin-right:4px;">
+                <eval input="/Zapp/{zapp_index}/Output/climbAngleAscent" outputFormat="Count_Threedigits" default="--" onValueChanged="g.currentAngle = Number(targetData) || 0; control('#climbGauge', 'REFRESH');" />
+            </span>
+            <span class="f-ico" style="color:#00E5FF;">&#xF262;</span>
+        </div>
+
+        <!-- Bottom Center: Total Workout Time -->
+        <div class="sp-vertical-center p-hc" style="top:calc(88% - 50%e); position:absolute;">
+            <span class="f-num" style="font-size:28px; color:#FFFFFF;">
+                <eval input="/Activity/Activity/-1/Duration/Current" outputFormat="Duration_Training" default="--:--" />
+            </span>
+        </div>
+
+    </div>
 </uiView>
