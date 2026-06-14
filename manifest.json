@@ -1,11 +1,11 @@
 {
   "name": "Indoor Climbing",
-  "version": "1.0",
+  "version": "3.0",
   "author": "Oscar Muñoz Ferriz",
   "description": "Attempts,Time,VSpeed,Recovery",
   "type": "feature",
   "usage": "workout",
-  "modificationTime": 1674690409, 
+  "modificationTime": 1674690409,
   "in": [
     {
       "name": "DurationAscent",
@@ -27,7 +27,6 @@
       "source": "/Fusion/Altitude/Descent",
       "type": "subscribe"
     },
-
     {
       "name": "VerticalSpeed",
       "source": "/Fusion/Altitude/VerticalSpeed",
@@ -45,7 +44,7 @@
       "name": "climbDurationAscent",
       "log": true,
       "shownName": "Duration Ascent",
-      "format": "Duration_Fourdigits"     
+      "format": "Duration_Fourdigits"
     },
     {
       "name": "climbDurationAscentDescent",
@@ -69,6 +68,8 @@
     }
   ],
   "template": [
-    { "name": "t.html" }
+    {
+      "name": "t.html"
+    }
   ]
 }
