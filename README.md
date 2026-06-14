@@ -13,7 +13,7 @@ The application features a sleek, minimal UI utilizing the **Suunto Canvas API**
 - **Core Climbing Metrics**: Tracks your Number of Ascents, total Ascent Meters for the current route, Vertical Speed (m/m), Ascent Duration, and Total Workout Time on a single, easy-to-read screen.
 
 ### Screen Design:
-<img src="image1.png" width="150" height="150"> <img src="image2.png" width="150" height="150"> <img src="image3.png" width="150" height="150">
+<img src="image1.png" width="30%" height="30%"> <img src="image2.png" width="30%" height="30%"> <img src="image3.png" width="30%" height="30%">
 
 <br/>
  
