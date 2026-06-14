@@ -4,14 +4,14 @@
     g.g = g;
     g.currentVSpeed = 0;
 
-    if (typeof subscribe === 'function') {
-      subscribe('/Activity/Zones/HeartRate/CurrentZone', function(v) {
-        // Map zones 0 to 5 to Suunto's official zone hex colors
-        var colors = ['#888888', '#36E4FF', '#6EE76D', '#FFDD33', '#FF9F33', '#FF5640'];
-        var color = colors[v] || '#888888';
+    g.currentZone = 0;
+
+    g.updateHRColors = function() {
+        var colors = ['#888888', '#36E4FF', '#6EE76D', '#FFE322', '#FF9F33', '#FF2A55'];
+        var color = colors[g.currentZone] || '#888888';
         setStyle('#hr-heart-ico', 'color', color);
-      });
-    }
+        setStyle('#hr-val-text', 'color', color);
+    };
 
     g.drawClimbingUI = function(ctx) {
       var cx = ctx.width / 2;
@@ -28,6 +28,63 @@
         ctx.closePath();
         ctx.fillStyle = '#FF5500';
         ctx.fill();
+      }
+
+      // 2. Render the official 5-segment corona on top
+      var zone = Number(g.currentZone) || 0;
+      if (typeof buildGenericGauge === 'function') {
+        buildGenericGauge(ctx, zone, 0, 4, 1, 5);
+      } else {
+        // Fallback manual 5-segment drawing for the emulator
+        var startAngle = 3 * Math.PI / 4;
+        var endAngle = 9 * Math.PI / 4;
+        var totalAngle = endAngle - startAngle;
+        var segmentAngle = totalAngle / 5;
+        var gap = 0.06;
+        var zColors = ['#36E4FF', '#6EE76D', '#FFE322', '#FF9F33', '#FF2A55'];
+        
+        ctx.lineCap = 'butt';
+        for (var i = 0; i < 5; i++) {
+          var sA = startAngle + i * segmentAngle + gap/2;
+          var eA = startAngle + (i+1) * segmentAngle - gap/2;
+          var isActive = (zone === i + 1);
+          ctx.lineWidth = isActive ? 8 : 4;
+          ctx.strokeStyle = isActive ? zColors[i] : '#666666';
+          ctx.beginPath();
+          ctx.arc(cx, cy, (ctx.width - ctx.lineWidth) / 2 - 2, sA, eA, false);
+          ctx.stroke();
+        }
+      }
+
+      // 3. Draw Needle (Flecha) pointing to the current zone
+      if (zone >= 1 && zone <= 5) {
+        var nStart = 3 * Math.PI / 4;
+        var nTotal = (9 * Math.PI / 4) - nStart;
+        var nSeg = nTotal / 5;
+        // Point exactly to the middle of the active zone
+        var angle = nStart + (zone - 1) * nSeg + (nSeg / 2);
+        
+        var rb = ctx.width / 2 - 2;  // Base of needle
+        var rt = ctx.width / 2 - 20; // Tip of needle
+        var bHalf = 0.055;
+
+        var xTip = cx + rt * Math.cos(angle);
+        var yTip = cy + rt * Math.sin(angle);
+        var xBase1 = cx + rb * Math.cos(angle - bHalf);
+        var yBase1 = cy + rb * Math.sin(angle - bHalf);
+        var xBase2 = cx + rb * Math.cos(angle + bHalf);
+        var yBase2 = cy + rb * Math.sin(angle + bHalf);
+
+        ctx.beginPath();
+        ctx.moveTo(xTip, yTip);
+        ctx.lineTo(xBase1, yBase1);
+        ctx.lineTo(xBase2, yBase2);
+        ctx.closePath();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       }
     };
   "
@@ -96,7 +153,7 @@
 
         <!-- Right: Heart Rate -->
         <div class="sp-vertical-center" style="top:64%; left:calc(80% - 50%e); position:absolute;">
-            <span class="f-num" style="font-size:28px; color:#FFFFFF;">
+            <span id="hr-val-text" class="f-num" style="font-size:28px; color:#FFFFFF;">
                 <eval input="/Activity/Move/-1/HeartRate/Current" outputFormat="HeartRate_Fourdigits" default="--" />
             </span>
             <span id="hr-heart-ico" class="f-ico" style="color:#FF2A55; margin-left:4px;">&#xF101;</span>
@@ -107,6 +164,11 @@
             <span class="f-num" style="font-size:28px; color:#FFFFFF;">
                 <eval input="/Activity/Activity/-1/Duration/Current" outputFormat="Duration_Training" default="--:--" />
             </span>
+        </div>
+
+        <!-- Heart Rate Zone Subscription (invisible) -->
+        <div style="top:0; left:0; width:0px; height:0px; position:absolute;">
+            <eval input="/Zapp/{zapp_index}/Output/hrZoneNum" outputFormat="script x => x" default="0" onValueChanged="g.currentZone = Number(targetData) || 0; g.updateHRColors(); control('#climbGauge', 'REFRESH');" />
         </div>
 
     </div>

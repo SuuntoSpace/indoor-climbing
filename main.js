@@ -71,6 +71,20 @@ function evaluate(input, output) {
   if (output.isClimbing == 0 && output.recommendedRest > 0) {
     output.recommendedRest = output.recommendedRest - 1;
   }
+
+  // Calculate HR Zone explicitly for emulator support
+  var hr = Math.round((input.HeartRate || 0) * 60);
+  var maxHR = input.MaxHR || 190;
+  var zone = 0;
+  if (hr > 0 && maxHR > 0) {
+    if (hr >= Math.round(maxHR * 0.87)) zone = 5;
+    else if (hr >= Math.round(maxHR * 0.82)) zone = 4;
+    else if (hr >= Math.round(maxHR * 0.77)) zone = 3;
+    else if (hr >= Math.round(maxHR * 0.72)) zone = 2;
+    else zone = 1;
+  }
+  output.hrZoneNum = zone;
+
   if ((output.climbAttemptAscent <= climbAttemptDescent) && 
   ((Ascending == false ) && (Descending == true))) {
    // Trigger lap once
@@ -125,10 +139,12 @@ function onLap(input, output) {
 }
  
  function getUserInterface(input, output) {
-   return {
-    template: 't'
-   };
- }
+  return {
+    template: 't',
+    zn: { input: '/Activity/Zones/HeartRate/CurrentZone' },
+    segm: 5
+  };
+}
  
  // This is called also when user backs from exercise start panel without starting
  // exercise. onExerciseEnd() is not working at all as zapp gets disabled before
