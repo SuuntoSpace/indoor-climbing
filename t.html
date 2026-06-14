@@ -41,15 +41,17 @@
             INDOOR<br/>CLIMBING
         </div>
 
-        <!-- Mode Label -->
-        <div class="f-s p-hc" style="top:calc(22% - 50%e); font-size:22px; font-weight:bold; color:#FFDD00; position:absolute;">
-            <eval input="/Zapp/{zapp_index}/Output/isClimbing" outputFormat="script x => (Number(x) === 1 ? 'CLIMBING' : 'RESTING')" default="READY" />
+        <!-- Left: Mode Label -->
+        <div style="top:calc(30% - 50%e); left:calc(25% - 50%e); position:absolute;">
+            <span class="f-s" style="font-size:18px; font-weight:bold; color:#FFDD00;">
+                <eval input="/Zapp/{zapp_index}/Output/isClimbing" outputFormat="script x => (Number(x) === 1 ? 'CLIMBING' : 'RESTING')" default="READY" />
+            </span>
         </div>
 
 
 
-        <!-- Top Center: Recovery Timer -->
-        <div class="f-num p-hc" style="top:calc(29% - 50%e); font-size:16px; color:#00E5FF; font-weight:bold; position:absolute;">
+        <!-- Center: Recovery Timer -->
+        <div class="f-num p-hc" style="top:calc(30% - 50%e); font-size:18px; color:#00E5FF; font-weight:bold; position:absolute;">
             <eval input="/Zapp/{zapp_index}/Output/recommendedRest" outputFormat="script x => (Number(x) &gt; 0 ? 'REC ' + Math.floor(Number(x)/60) + ':' + (Number(x)%60 &lt; 10 ? '0' : '') + (Number(x)%60) : '')" default="" />
         </div>
 
