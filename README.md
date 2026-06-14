@@ -1,4 +1,4 @@
-# Indoor Climbing Pro
+# Indoor Climbing
 Suunto App Indoor Climbing 3.0 Version
 
 This app is designed specifically for **indoor rock climbing and bouldering**. It turns your Suunto watch into a professional climbing coach on your wrist, tracking your vertical performance, auto-lapping your attempts, and telling you exactly how long to wait before your next climb.
