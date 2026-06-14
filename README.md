@@ -19,18 +19,7 @@ The application features a sleek, minimal UI utilizing the **Suunto Canvas API**
 <br/>
  
 ### SA Outputs:
-  #### Suunto Plus Metrics to analyze later in SA
-  <img src="SuuntoPlusMetric.jpg" width="35%" height="35%">
-   <br/>
-   
   #### SA Summary Outputs
   <img src="SA_Metrics.jpg" width="35%" height="35%">
    <br/>
    
-## To be improved:
-  - Add more user-selectable recovery ratios.
-  - Grade tracking input at the end of each lap.
-
----
-### :fire: My Stats :
-[![GitHub Streak](http://github-readme-streak-stats.herokuapp.com?user=osmufe&theme=submarine-flowers&hide_border=true&date_format=j%20M%5B%20Y%5D&mode=weekly&border=DD2727)](https://git.io/streak-stats)
