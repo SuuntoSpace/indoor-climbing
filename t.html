@@ -2,19 +2,24 @@
   onLoad="
     var g = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : Function('return this')());
     g.g = g;
-    g.currentAngle = 0;
+    g.currentVSpeed = 0;
+
+    if (typeof subscribe === 'function') {
+      subscribe('/Activity/Zones/HeartRate/CurrentZone', function(v) {
+        // Map zones 0 to 5 to Suunto's official zone hex colors
+        var colors = ['#888888', '#36E4FF', '#6EE76D', '#FFDD33', '#FF9F33', '#FF5640'];
+        var color = colors[v] || '#888888';
+        setStyle('#hr-heart-ico', 'color', color);
+      });
+    }
 
     g.drawClimbingUI = function(ctx) {
       var cx = ctx.width / 2;
       var cy = ctx.width / 2;
 
-      var angleVal = Number(g.currentAngle) || 0;
-      if (angleVal < 0) angleVal = 0;
-      if (angleVal > 90) angleVal = 90;
-
-      // 1. Draw top curved orange banner (Slightly larger to fit two lines)
+      // 1. Draw top curved orange banner
       var r = ctx.width / 2 - 10; 
-      var dy = 0.26 * ctx.width - cy; 
+      var dy = 0.20 * ctx.width - cy; // Adjusted to make banner thinner
       if (r > Math.abs(dy)) {
         var end = Math.asin(dy / r);
         var start = -Math.PI - end;
@@ -24,41 +29,6 @@
         ctx.fillStyle = '#FF5500';
         ctx.fill();
       }
-
-      ctx.lineCap = 'round';
-      var arcRadius = (ctx.width - 12) / 2 - 6;
-
-      // Draw background arc for Angle
-      var startArc = 3 * Math.PI / 4;
-      var endArc = 9 * Math.PI / 4;
-      
-      ctx.lineWidth = 10;
-      ctx.strokeStyle = '#222222';
-      ctx.beginPath();
-      ctx.arc(cx, cy, arcRadius, startArc, endArc, false);
-      ctx.stroke();
-
-      // Dynamic Color for the Active Arc
-      var activeColor = '#00E5FF'; // Cyan for 0-30 deg
-      if (angleVal >= 80) {
-        activeColor = '#FF0055'; // Red/Magenta for vertical (80-90)
-      } else if (angleVal >= 60) {
-        activeColor = '#FF5500'; // Orange for steep (60-80)
-      } else if (angleVal >= 30) {
-        activeColor = '#FFDD00'; // Yellow for stairs/moderate (30-60)
-      }
-
-      // Draw active arc based on angle (0 to 90 degrees)
-      var progress = angleVal / 90.0;
-      var currentEndArc = startArc + progress * (endArc - startArc);
-
-      if (progress > 0) {
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = activeColor;
-        ctx.beginPath();
-        ctx.arc(cx, cy, arcRadius, startArc, currentEndArc, false);
-        ctx.stroke();
-      }
     };
   "
 >
@@ -67,50 +37,67 @@
         <object type="canvas" id="climbGauge" style="position:absolute; top:0; left:0; width:100%; height:100%;" build="ctx => g.drawClimbingUI(ctx);" />
 
         <!-- Title INDOOR CLIMBING in two lines -->
-        <div class="sp-t-m p-hc" style="top:calc(16% - 50%e); color:#000000; font-weight:bold; position:absolute; line-height:1; text-align:center;">
-            INDOOR<br>CLIMBING
+        <div class="sp-t-m p-hc" style="top:calc(12% - 50%e); color:#000000; font-weight:bold; position:absolute; line-height:1; text-align:center;">
+            INDOOR<br/>CLIMBING
         </div>
 
         <!-- Mode Label -->
-        <div class="f-s p-hc" style="top:calc(29% - 50%e); font-size:12px; font-weight:bold; color:#FF5500; position:absolute;">
-            CURRENT ASCENT
+        <div class="f-s p-hc" style="top:calc(22% - 50%e); font-size:22px; font-weight:bold; color:#FFDD00; position:absolute;">
+            <eval input="/Zapp/{zapp_index}/Output/isClimbing" outputFormat="script x => (Number(x) === 1 ? 'CLIMBING' : 'RESTING')" default="READY" />
         </div>
 
-        <!-- Central Metric: Ascent Meters -->
-        <div class="sp-vertical-center p-hc" style="top:calc(45% - 50%e); position:absolute;">
-            <span class="f-ico" style="color:#FFFFFF; margin-right:6px;">&#xF112;</span>
-            <span class="f-num" style="font-size:38px; color:#FFFFFF;">
-                <eval input="/Zapp/{zapp_index}/Output/climbAttemptAscent" outputFormat="Count_Threedigits" default="--" />
+
+
+        <!-- Top Center: Recovery Timer -->
+        <div class="f-num p-hc" style="top:calc(29% - 50%e); font-size:16px; color:#00E5FF; font-weight:bold; position:absolute;">
+            <eval input="/Zapp/{zapp_index}/Output/recommendedRest" outputFormat="script x => (Number(x) &gt; 0 ? 'REC ' + Math.floor(Number(x)/60) + ':' + (Number(x)%60 &lt; 10 ? '0' : '') + (Number(x)%60) : '')" default="" />
+        </div>
+
+        <!-- Central Row (36%): Attempts | Ascent Meters | Vertical Speed -->
+        
+        <!-- Left: Number of Ascents -->
+        <div class="sp-vertical-center" style="top:36%; left:calc(20% - 50%e); position:absolute;">
+            <span class="f-ico" style="color:#FF5500;">&#xF265;</span>
+            <span class="f-num" style="font-size:36px; margin-left:6px; color:#FFFFFF;">
+                <eval input="/Zapp/{zapp_index}/Output/climbAttempts" outputFormat="Count_Threedigits" default="0" />
             </span>
         </div>
-        <div class="f-s cm-mid p-hc" style="top:calc(56% - 50%e); font-size:16px; position:absolute; color:#888888;">
+
+        <!-- Center: Ascent Meters -->
+        <div class="sp-vertical-center p-hc" style="top:36%; position:absolute;">
+            <span class="f-ico" style="color:#FFFFFF; margin-right:10px;">&#xF112;</span>
+            <span class="f-num" style="font-size:36px; color:#FFFFFF;">
+                <eval input="/Zapp/{zapp_index}/Output/climbAttemptAscent" outputFormat="Count_Threedigits" default="0" />
+            </span>
+        </div>
+        <div class="f-s cm-mid p-hc" style="top:54%; font-size:14px; position:absolute; color:#888888;">
             Meters
         </div>
 
-        <!-- Middle Row -->
-        
-        <!-- Left: Number of Ascents -->
-        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(20% - 50%e); position:absolute;">
-            <span class="f-ico" style="color:#FF5500;">&#xF265;</span>
-            <span class="f-num" style="font-size:34px; margin-left:2px; color:#FFFFFF;">
-                <eval input="/Zapp/{zapp_index}/Output/climbAttempts" outputFormat="Count_Threedigits" default="--" />
+        <!-- Right: Vertical Speed -->
+        <div class="sp-vertical-center" style="top:36%; left:calc(80% - 50%e); position:absolute;">
+            <span class="f-num" style="font-size:36px; color:#00E5FF; margin-right:6px;">
+                <eval input="/Zapp/{zapp_index}/Output/climbVerticalSpeed" outputFormat="Count_Threedigits" default="0" onValueChanged="g.currentVSpeed = Number(targetData) || 0; control('#climbGauge', 'REFRESH');" />
             </span>
+            <span class="f-s" style="font-size:14px; color:#00E5FF; font-weight:bold;">m/m</span>
         </div>
 
-        <!-- Center: Ascent Duration -->
-        <div class="sp-vertical-center p-hc" style="top:calc(72% - 50%e); position:absolute;">
+        <!-- Middle Row (64%): Ascent Duration | HR -->
+        
+        <!-- Left: Ascent Duration -->
+        <div class="sp-vertical-center" style="top:64%; left:calc(30% - 50%e); position:absolute;">
             <span class="f-ico" style="color:#CCCCCC; margin-right:2px;">&#xF114;</span>
             <span class="f-num" style="font-size:28px; color:#CCCCCC;">
                 <eval input="/Zapp/{zapp_index}/Output/climbDurationAscent" outputFormat="Duration_FourdigitsFixed" default="--:--" />
             </span>
         </div>
 
-        <!-- Right: Angle Ascent -->
-        <div class="sp-vertical-center" style="top:calc(72% - 50%e); left:calc(80% - 50%e); position:absolute;">
-            <span class="f-num" style="font-size:34px; color:#00E5FF; margin-right:2px;">
-                <eval input="/Zapp/{zapp_index}/Output/climbAngleAscent" outputFormat="Count_Threedigits" default="--" onValueChanged="g.currentAngle = Number(targetData) || 0; control('#climbGauge', 'REFRESH');" />
+        <!-- Right: Heart Rate -->
+        <div class="sp-vertical-center" style="top:64%; left:calc(80% - 50%e); position:absolute;">
+            <span class="f-num" style="font-size:28px; color:#FFFFFF;">
+                <eval input="/Activity/Move/-1/HeartRate/Current" outputFormat="HeartRate_Fourdigits" default="--" />
             </span>
-            <span class="f-ico" style="color:#00E5FF;">&#xF262;</span>
+            <span id="hr-heart-ico" class="f-ico" style="color:#FF2A55; margin-left:4px;">&#xF101;</span>
         </div>
 
         <!-- Bottom Center: Total Workout Time -->

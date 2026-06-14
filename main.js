@@ -29,54 +29,47 @@
 // Watch var DescentMeters: Total Descent meters in the workout.
 // .toFixed(0) Without decimals
 
-var Ascending, Descending, climbAttemptDescent, climbTotalAscent, climbTotalDescent, climbDurationDescent, climbDistanceAttempAscent,
-    climbDistanceStartAttempAscent, climbRightTriangle, climbTotalDurationAscent, climbTotalDurationDescent, attemptDistanceAnchored;
+var Ascending, Descending, climbAttemptDescent, climbTotalAscent, climbTotalDescent, climbDurationDescent, climbTotalDurationAscent, climbTotalDurationDescent, lastClimbingState;
 
 function evaluate(input, output) {  
-  output.climbAttemptAscent = input.AscentMeters.toFixed(0) - climbTotalAscent;
-  climbAttemptDescent = input.DescentMeters.toFixed(0) - climbTotalDescent;
+  output.climbAttemptAscent = (input.AscentMeters || 0).toFixed(0) - (climbTotalAscent || 0);
+  climbAttemptDescent = (input.DescentMeters || 0).toFixed(0) - (climbTotalDescent || 0);
   if ((output.climbAttemptAscent > 0) && (climbAttemptDescent == 0)) {
-      if (!attemptDistanceAnchored) {
-     // Save the distance when start the Ascent
-     climbDistanceStartAttempAscent = input.Distance;
-     attemptDistanceAnchored = true;
-    } else {
-     // Save the Distance in meters when ascensing because later generate the angle of each Attempt
-     climbDistanceAttempAscent = input.Distance - climbDistanceStartAttempAscent;
-     
-     var H = output.climbAttemptAscent;
-     var D = climbDistanceAttempAscent;
-     
-     if (D > 0) {
-       var ratio = H / D;
-       if (ratio > 1.0) ratio = 1.0;
-       if (ratio < -1.0) ratio = -1.0;
-       output.climbAngleAscent = Math.asin(ratio) * (180 / Math.PI);
-     } else {
-       // If no distance has been registered but height increased, it's effectively 90 degrees
-       if (H > 0) {
-         output.climbAngleAscent = 90;
-       } else {
-         output.climbAngleAscent = 0;
-       }
-     }
-    } 
+      output.isClimbing = 1;
+      lastClimbingState = 1;
+      var vSpeed = (input.VerticalSpeed || 0) * 60;
+      if (vSpeed < 0) vSpeed = 0;
+      output.climbVerticalSpeed = Number(vSpeed.toFixed(0)); 
     // Condition that you can make actions in Ascent period
     output.climbDurationAscent = input.DurationAscent - climbTotalDurationAscent;
     // Use this var to save the data on SA for each lap 
     output.climbDurationAscentDescent = input.DurationAscent + input.DurationDescent; 
     Ascending = true; 
-    Ascending = false;   
+    Descending = false;   
   } else if ((climbAttemptDescent > 0) && (output.climbAttemptAscent > 0)) {
+    output.isClimbing = 0;
+    if (lastClimbingState == 1) {
+       output.recommendedRest = output.climbDurationAscent * 3;
+       lastClimbingState = 0;
+    }
     // Condition that you can make actions in Descent period
     climbDurationDescent = input.DurationDescent - climbTotalDurationDescent;
     // Use this var to save the data on SA for each lap 
     output.climbDurationAscentDescent = output.climbDurationAscent + climbDurationDescent;
     Descending = true;
     Ascending = false;
-  }else {
+  } else {
+    output.isClimbing = 0;
+    if (lastClimbingState == 1) {
+       output.recommendedRest = output.climbDurationAscent * 3;
+       lastClimbingState = 0;
+    }
     climbTotalDescent = input.DescentMeters.toFixed(0);
     climbTotalDurationDescent = input.DurationDescent;
+  }
+  
+  if (output.isClimbing == 0 && output.recommendedRest > 0) {
+    output.recommendedRest = output.recommendedRest - 1;
   }
   if ((output.climbAttemptAscent <= climbAttemptDescent) && 
   ((Ascending == false ) && (Descending == true))) {
@@ -91,19 +84,18 @@ function onExerciseStart(input, output) {
   output.climbDurationAscentDescent = 0;
   output.climbDurationAscent = 0;
   climbDurationDescent = 0;
-  climbTotalAscent = 0;
   climbTotalDescent = 0;
   output.climbAttemptAscent = 0;
   climbAttemptDescent = 0;
-  climbDistanceAttempAscent = 0;
-  climbDistanceStartAttempAscent = 0;
-  output.climbAngleAscent = 0;
-  climbRightTriangle = 0;
-  Ascending = 'false';
-  Descending = 'false';
+  output.climbVerticalSpeed = 0;
+  output.isClimbing = 0;
+  output.recommendedRest = 0;
+  lastClimbingState = 0;
+  climbTotalAscent = 0;
+  Ascending = false;
+  Descending = false;
   climbTotalDurationDescent = 0;
   climbTotalDurationAscent = 0;
-  attemptDistanceAnchored = false;
 }
 
 function onLap(input, output) { 
@@ -111,24 +103,25 @@ function onLap(input, output) {
   climbDurationDescent = input.DurationDescent - climbTotalDurationDescent;
   // Use this var to save the data on SA for each lap
   output.climbDurationAscentDescent = output.climbDurationAscent + climbDurationDescent;
-  climbDistanceAttempAscent = input.Distance - climbDistanceStartAttempAscent;
+  
+  if (output.climbDurationAscent > 0) {
+    output.recommendedRest = output.climbDurationAscent * 3;
+  }
 
   // Initializing Variables for new Ascent and increase output.climbAttempts Variable
   output.climbAttemptAscent = 0;
   climbAttemptDescent = 0;
-  climbDistanceAttempAscent = 0;
-  climbDistanceStartAttempAscent = 0;
-  output.climbAngleAscent = 0;
-  climbRightTriangle = 0;
-  climbTotalAscent = input.AscentMeters.toFixed(0);
-  climbTotalDescent = input.DescentMeters.toFixed(0);
+  output.climbVerticalSpeed = 0;
+  output.isClimbing = 0;
+  lastClimbingState = 0;
+  climbTotalAscent = (input.AscentMeters || 0).toFixed(0);
+  climbTotalDescent = (input.DescentMeters || 0).toFixed(0);
   output.climbAttempts = output.climbAttempts + 1;
-  Ascending = 'false';
-  Descending = 'false';
+  Ascending = false;
+  Descending = false;
   output.climbDurationAscentDescent = 0;
   output.climbDurationAscent = 0;
   climbDurationDescent = 0;
-  attemptDistanceAnchored = false;
 }
  
  function getUserInterface(input, output) {

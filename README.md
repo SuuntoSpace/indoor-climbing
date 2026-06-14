@@ -1,30 +1,25 @@
-# Indoor Climbing
-Suunto App Indoor Climbing 2.0 Version
+# Indoor Climbing Pro
+Suunto App Indoor Climbing 3.0 Version
 
-This app is designed to show the meters climbed on each Ascent/Descent or Climbing route without GPS (Indoor Climbing). It tracks the time spent on the Ascent, the meters Climbed, the number of Attempts/Runs, and the Climb Angle Ascent. 
+This app is designed specifically for **indoor rock climbing and bouldering**. It turns your Suunto watch into a professional climbing coach on your wrist, tracking your vertical performance, auto-lapping your attempts, and telling you exactly how long to wait before your next climb.
 
-It generates a lap every time you finish the route or Ascent/Descent ***(you can also force the end of the Ascent/Descent or route by pressing the lap button).*** The app saves in the Suunto App (SA) the number of times you completed an Ascent/Descent in a training, the time spent, and the Climb Angle Ascent.
+### Key Features (v3.0):
+The application features a sleek, minimal UI utilizing the **Suunto Canvas API** for perfect layout alignment.
 
-Alternatively, this application can be used for training running up and down stairs indoors.
-
-### New "Pro" Visual Interface (v2.0):
-The application has been completely redesigned using the **Suunto Canvas API** for a premium look and feel.
-- **Dynamic Inclination Arc**: A central interactive gauge visually represents your climb angle (from 0º to 90º). 
-- **Thermal Color Gradient**: The arc automatically changes color based on the steepness of your climb:
-  - 🔵 **Cyan (0º - 30º)**: Flat or easy approach.
-  - 🟡 **Yellow (30º - 60º)**: Moderate steepness or stairs.
-  - 🟠 **Orange (60º - 80º)**: Steep climb or indoor climbing wall.
-  - 🔴 **Red/Magenta (80º - 90º)**: Pure vertical wall or overhang climb.
-- **Robust Indoor Math**: The angle and distance calculations have been optimized to deliver reliable metrics (up to 90º) even when GPS data or horizontal displacement tracking is completely unavailable indoors.
+- **Smart Climbing State**: The app automatically detects when you are on the wall (`CLIMBING`) and when you are back on the ground (`RESTING`).
+- **Auto-Lap Detection**: Automatically registers an Attempt (Lap) and resets your ascent meters the moment your descent distance matches your ascent distance. No manual button presses needed!
+- **Dynamic Recovery Timer**: When you finish an ascent, the app calculates your recommended recovery time (based on a 1:3 climbing/rest ratio) and displays a live countdown timer (`REC MM:SS`) while you rest.
+- **Dynamic HR Zones**: Integrated Heart Rate monitoring featuring a heart icon that changes color in real-time to match your current Suunto Heart Rate Zone (Zone 1 to 5).
+- **Core Climbing Metrics**: Tracks your Number of Ascents, total Ascent Meters for the current route, Vertical Speed (m/m), Ascent Duration, and Total Workout Time on a single, easy-to-read screen.
 
 ### Screen Design:
-*(Update pending - Add new screenshots of the Canvas UI here)*
-<img src="Small.png " width="150" height="150"> <img src="Medium.png " width="150" height="150"> <img src="Medium UI2.png " width="150" height="150"> <img src="Medium UI2 Plus.png " width="150" height="150"> <img src="Large.png " width="150" height="150">
+*(Please update with screenshots of the final UI on the watch/simulator)*
+<img src="Small.png" width="150" height="150"> <img src="Medium.png" width="150" height="150"> <img src="Large.png" width="150" height="150">
 
 <br/>
  
 ### SA Outputs:
-  #### Suunto Plus Metrics to analize later in SA
+  #### Suunto Plus Metrics to analyze later in SA
   <img src="SuuntoPlusMetric.jpg" width="35%" height="35%">
    <br/>
    
@@ -33,10 +28,8 @@ The application has been completely redesigned using the **Suunto Canvas API** f
    <br/>
    
 ## To be improved:
-  - More precision in climbAngleAscent in outdoor scenarios without GPS.
-
-## I will Try to do it if possible:
-  - 15 different grading scales : https://www.guidedolomiti.com/en/rock-climbing-grades/
+  - Add more user-selectable recovery ratios.
+  - Grade tracking input at the end of each lap.
 
 ---
 ### :fire: My Stats :
