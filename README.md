@@ -14,7 +14,7 @@ The application features a sleek, minimal UI utilizing the **Suunto Canvas API**
 
 ### Screen Design:
 *(Please update with screenshots of the final UI on the watch/simulator)*
-<img src="Small.png" width="150" height="150"> <img src="Medium.png" width="150" height="150"> <img src="Large.png" width="150" height="150">
+<img src="image1.png" width="150" height="150"> <img src="image2.png" width="150" height="150"> <img src="image3.png" width="150" height="150">
 
 <br/>
  
