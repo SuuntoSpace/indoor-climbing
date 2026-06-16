@@ -17,7 +17,10 @@ The application features a sleek, minimal UI utilizing the **Suunto Canvas API**
 
 <br/>
 
-🎥 [Demo Video](./demo.mp4)
+🎥 [Demo Video]
+<video width="800" controls>
+  <source src="demo.mp4" type="video/mp4">
+</video>
 
 ### SA Outputs:
   #### SA Summary Outputs
