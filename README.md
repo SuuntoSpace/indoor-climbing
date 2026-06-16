@@ -16,7 +16,9 @@ The application features a sleek, minimal UI utilizing the **Suunto Canvas API**
 <img src="image1.png" width="30%" height="30%"> <img src="image2.png" width="30%" height="30%"> <img src="image3.png" width="30%" height="30%">
 
 <br/>
- 
+
+🎥 [Demo Video](./demo.mp4)
+
 ### SA Outputs:
   #### SA Summary Outputs
   <img src="SA_Metrics.jpg" width="35%" height="35%">
