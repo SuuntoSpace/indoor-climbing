@@ -1,11 +1,18 @@
 {
   "name": "Indoor Climbing",
-  "version": "1.0",
+  "version": "3.0",
   "author": "Oscar Muñoz Ferriz",
+<<<<<<< HEAD
+  "description": "Attempts,Time,VSpeed,Recovery",
+  "type": "feature",
+  "usage": "workout",
+  "modificationTime": 1674690409,
+=======
   "description": "Attempts, Time Spend",
   "type": "feature",
   "usage": "workout",
   "modificationTime": 1674690409, 
+>>>>>>> master
   "in": [
     {
       "name": "DurationAscent",
@@ -26,6 +33,24 @@
       "name": "DescentMeters",
       "source": "/Fusion/Altitude/Descent",
       "type": "subscribe"
+<<<<<<< HEAD
+    },
+    {
+      "name": "VerticalSpeed",
+      "source": "/Fusion/Altitude/VerticalSpeed",
+      "type": "subscribe"
+    },
+    {
+      "name": "HeartRate",
+      "source": "/Activity/Move/-1/HeartRate/Current",
+      "type": "subscribe"
+    },
+    {
+      "name": "MaxHR",
+      "source": "/Settings/User/MaxHR",
+      "type": "get"
+=======
+>>>>>>> master
     }
   ],
   "out": [
@@ -39,16 +64,43 @@
       "name": "climbDurationAscent",
       "log": true,
       "shownName": "Duration Ascent",
-      "format": "Duration_Fourdigits"     
+      "format": "Duration_Fourdigits"
     },
     {
       "name": "climbDurationAscentDescent",
       "log": true,
       "shownName": "Duration Ascent Descent",
       "format": "Duration_Fourdigits"
+<<<<<<< HEAD
+    },
+    {
+      "name": "climbVerticalSpeed",
+      "log": true,
+      "shownName": "Vertical Speed",
+      "format": "Count_Threedigits"
+    },
+    {
+      "name": "isClimbing",
+      "format": "Count_Threedigits"
+    },
+    {
+      "name": "recommendedRest",
+      "format": "Duration_Fourdigits"
+    },
+    {
+      "name": "hrZoneNum",
+      "format": "Count_Threedigits"
+    }
+  ],
+  "template": [
+    {
+      "name": "t.html"
+    }
+=======
     }
   ],
   "template": [
     { "name": "t.html" }
+>>>>>>> master
   ]
 }
